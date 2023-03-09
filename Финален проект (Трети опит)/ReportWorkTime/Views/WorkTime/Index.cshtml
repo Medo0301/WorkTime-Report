@@ -1,0 +1,205 @@
+﻿@model EmployeeUser
+@{
+    ViewData["Title"] = "Работно време";
+}
+
+<br />
+<p>Работно време</p>
+<div class="col-12 border row p-o m-0">
+    
+    <div class="col-5">
+        <h4>Служите: @Model.FirstName @Model.LastName</h4>
+    </div>
+    <div class="col-2">
+        <p>Месец: @ViewBag.month.ToString("MMMM yyyy")</p>
+        
+
+
+        @*<a asp-controller="WorkTime" asp-action="PreviousMonth" class="btn btn-primary">&lt;&lt;</a>
+        <a asp-controller="WorkTime" asp-action="NextMonth" class="btn btn-primary">&gt;&gt;</a>*@
+    </div>
+    <div class="col-3">
+        <a asp-action="PreviousMonth" asp-controller="WorkTime" asp-route-id="@Model.Id" type="submit" class="btn btn-primary">&lt;&lt</a>
+
+        <a asp-action="NextMonth" asp-controller="WorkTime" asp-route-id="@Model.Id" type="submit" class="btn btn-primary">&gt;&gt;</a>
+    </div>
+    <br />
+    <br />
+
+    @if (Model.WorkingDays.Count() > 0)
+    {
+        <table class="table table-striper table-bordered">
+            <tr class="table-secondary">
+                <th>
+                    <label asp-for="WorkingDays.FirstOrDefault().TypeOfDay">Тип на записа</label>
+                </th>
+                <th>
+                    <label asp-for="WorkingDays.FirstOrDefault().Date">Дата</label>
+                </th>
+                <th>
+                    <label asp-for="WorkingDays.FirstOrDefault().StartWork">Начало на работно време</label>
+                </th>
+                <th>
+                    <label asp-for="WorkingDays.FirstOrDefault().EndWork">Край на работно време</label>
+                </th>
+                <th>
+                    <label asp-for="WorkingDays.FirstOrDefault().HoursForDay">Общо часове за деня</label>
+                </th>
+            </tr>
+            @foreach (var item in Model.WorkingDays)
+            {
+                var timeSpan = item.HoursForDay;
+                var formattedTime = $"{(int)timeSpan.TotalHours:D2}:{timeSpan.Minutes:D2}";
+                <tr>
+                    <td>@EnumHelper.TypeOfDayDisplayNames[item.TypeOfDay]</td>
+                    <td>@item.Date?.ToString("dd MMM yyyy")</td>
+                    <td>@item.StartWork.ToString("HH:mm")</td>
+                    <td>@item.EndWork.ToString("HH:mm")</td>
+                    <td>@formattedTime</td>
+                </tr>
+            }
+        </table>
+    }
+    else
+    {
+        <table class="table table-striper table-bordered">
+            <tr class="table-secondary">
+                <th>
+                    <label asp-for="WorkingDays.FirstOrDefault().TypeOfDay">Тип на записа</label>
+                </th>
+                <th>
+                    <label asp-for="WorkingDays.FirstOrDefault().Date">Дата</label>
+                </th>
+                <th>
+                    <label asp-for="WorkingDays.FirstOrDefault().StartWork">Начало на работно време</label>
+                </th>
+                <th>
+                    <label asp-for="WorkingDays.FirstOrDefault().EndWork">Край на работно време</label>
+                </th>
+                <th>
+                    <label asp-for="WorkingDays.FirstOrDefault().HoursForDay">Общо часове за деня</label>
+                </th>
+            </tr>
+        </table>
+        <p>Няма работни дни през този месец.</p>
+    }
+    <div class="form-group row col-5 offser-5">
+        <p>Общо работни часове за месеца: @ViewBag.hours</p>
+    </div>
+    <div class="form-group row col-5 offser-5">
+        <p>Общо неработни часове за месеца: @ViewBag.absenceHours</p>
+    </div>
+    <div class="form-group row">
+        <div class="col-2">
+            @if (Model.IsWorking)
+            {
+            <a asp-action="CreateGoingOut" asp-controller="WorkTime" asp-route-id="@Model.Id" type="submit" class="btn btn-primary">Ново излизане</a>
+            }
+        </div>
+    </div>
+
+</div>
+<br />
+<br />
+
+<div class="col-12 container row">
+    <div class="col-2">
+        <h6 class="text">Излизания </h6>
+    </div>
+    <div class="col-2 offset-5">
+        <h6 class="text">Други</h6>
+    </div>
+</div>
+<div class="col-12 container row">
+    <div class="col-5 border">
+        @if (Model.GoingOuts.Count() > 0)
+        {
+            <table class="table table-striper table-bordered">
+                <tr class="table-secondary">
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <th></th>
+                    }
+                    <th>
+                        <label asp-for="GoingOuts.FirstOrDefault().DateOfAbsence">Дата</label>
+                    </th>
+                    <th>
+                        <label asp-for="GoingOuts.FirstOrDefault().StartAbsence">Излизане - начало</label>
+                    </th>
+                    <th>
+                        <label asp-for="GoingOuts.FirstOrDefault().EndAbsence">Излизане - край</label>
+                    </th>
+                    <th>
+                        <label asp-for="GoingOuts.FirstOrDefault().Reason">Причина</label>
+                    </th>
+                </tr>
+                @foreach (var item in Model.GoingOuts)
+                {
+                    <tr>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <td>
+                                <a asp-action="EditGoingOut" asp-controller="WorkTime" asp-route-id="@item.Id" type="button" class="btn btn-link">Редактирай</a>
+                            </td>
+                        }
+                        <td>@item.DateOfAbsence?.ToString("dd MMM yyyy")</td>
+                        <td>@item.StartAbsence.ToString("HH:mm")</td>
+                        <td>@item.EndAbsence.ToString("HH:mm")</td>
+                        <td>@item.Reason</td>
+                    </tr>
+                }
+            </table>
+        }
+        else
+        {
+            <table class="table table-striped border">
+                <tr class="table-secondary">
+                    <th>
+                        <label asp-for="GoingOuts.FirstOrDefault().DateOfAbsence">Дата</label>
+                    </th>
+                    <th>
+                        <label asp-for="GoingOuts.FirstOrDefault().StartAbsence">Излизане - начало</label>
+                    </th>
+                    <th>
+                        <label asp-for="GoingOuts.FirstOrDefault().EndAbsence">Излизане - край</label>
+                    </th>
+                    <th>
+                        <label asp-for="GoingOuts.FirstOrDefault().Reason">Причина</label>
+                    </th>
+                </tr>
+            </table>
+            <p>Няма излизания през този месец.</p>
+        }
+    </div>
+    <div class="col-5 offset-1">
+        <table class="table table-striper table-bordered">
+            <tr>
+                <th>Командировки</th>
+                <th>Платен отпуск</th>
+                <th>Неплатен отпуск</th>
+                <th>Болнични</th>
+            </tr>
+            <tr>
+                <td>@ViewBag.BusinessTrip</td>
+                <td>@ViewBag.PaidLeave</td>
+                <td>@ViewBag.UnpaidLeave</td>
+                <td>@ViewBag.SickLeave</td>
+            </tr>
+            @*<p>Няма командировки, отпуски или болнични през този месец</p>*@
+        </table>
+    </div>
+</div>
+<br />
+<div class="form-group row">
+    @*<div class="col-4 offset-3">
+    <button asp-controller="Home" asp-action="Create" type="submit" class="btn btn-primary">Запиши</button>
+    </div>*@
+    <div class="col-1">
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-action="Index" asp-controller="Home" class="btn btn-secondary form-control">Назад</a>
+        }
+    </div>
+</div>
+
+

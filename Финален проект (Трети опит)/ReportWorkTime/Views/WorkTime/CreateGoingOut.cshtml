@@ -1,0 +1,130 @@
+﻿@model ReportWorkTime.Models.Absence
+@{
+    ViewData["Title"] = "Излизане";
+}
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $('#personalCheckbox').change(function () {
+                if ($(this).is(':checked')) {
+                    $('#Reason').val('Лично');
+                    $('#Reason').prop('readonly', true);
+                } else {
+                    $('#Reason').val('');
+                    $('#Reason').prop('readonly', false);
+                }
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $("#select-option").change(function () {
+                var selectedValue = $(this).val();
+                if (selectedValue == "1" || selectedValue == "2" || selectedValue == "3" || selectedValue == "4") {
+                    $("#additional-field").show();
+                } else {
+                    $("#additional-field").hide();
+                }
+            });
+        });
+    </script>
+}
+
+<br />
+<div class="col-5">
+    <h4>Служите: @ViewBag.firstName @ViewBag.lastName</h4>
+</div>
+<br />
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<form method="post">
+    
+    <p>Начало</p>
+    <div class="col-12 border row p-2 m-2">
+        <div class="form-group">
+            <label asp-for="DateOfAbsence">Дата:</label>
+            @if(User.IsInRole("Admin"))
+            {
+                @*@Html.EditorFor(model => model.DateOfAbsence, new { htmlAttributes = new { @class = "form-control" } })*@
+                <input asp-for="DateOfAbsence" class="form-control"  />@*asp-format="{0:dd.MM.yyyy}"*@
+            }
+            else
+            {
+                <input asp-for="DateOfAbsence" class="form-control" disabled="true" />
+            }
+            <span asp-validation-for="DateOfAbsence" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="StartAbsence">Начало-Час:</label>
+            @if(User.IsInRole("Admin"))
+            {
+                <input asp-for="StartAbsence" class="form-control" />
+            }
+            else
+            {
+                <input asp-for="StartAbsence" class="form-control" disabled="true" />
+            }
+            <span asp-validation-for="StartAbsence" class="text-danger"></span>
+        </div>
+    </div>
+    <p>Край</p>
+    <div class="col-12 border row p-2 m-2">
+        <div class="form-group">
+            <label asp-for="EndDateOfAbsence">Дата:</label>
+            @if(User.IsInRole("Admin"))
+            {
+                <input asp-for="EndDateOfAbsence" class="form-control" />
+            }
+            else
+            {
+                <input asp-for="EndDateOfAbsence" class="form-control" disabled="true" />
+            }
+        </div>
+        <div class="form-group">
+            <label asp-for="EndAbsence">Край-Час:</label>
+            @if(User.IsInRole("Admin"))
+            {
+                <input asp-for="EndAbsence" class="form-control" />
+            }
+            else
+            {
+                <input asp-for="EndAbsence" class="form-control" disabled="true" />
+            }
+            <span asp-validation-for="EndAbsence" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <input asp-for="EmpUserId" type="hidden" value="@Model.EmpUserId" />
+    </div>
+    @if (User.IsInRole("Admin"))
+    {
+        <div class="form-group">
+            <label asp-for="Type"></label>
+            <select asp-for="Type" class="form-select" id="select-option">
+                <option value="0">Изберете:</option>
+                <option value="1">Командировка</option>
+                <option value="2">Платен отпуск</option>
+                <option value="3">Неплатен отпуск</option>
+                <option value="4">Болнични</option>
+                <option value="5">Край на работен ден</option>
+            </select>
+        </div>
+        <div class="form-group" id="additional-field" style="display: none;">
+            <label for="additional-input">Брой дни:</label>
+            <input asp-for="NumberOfDays" id="additional-input" class="form-control" type="number" />
+        </div>
+    }
+
+    <div class="form-group form-check">
+        <input type="checkbox" class="form-check-input" id="personalCheckbox" />
+        <label class="form-check-label" for="personalCheckbox">Лично</label>
+    </div>
+    <div class="form-group">
+        <label asp-for="Reason" class="control-label">Причина:</label>
+        <input asp-for="Reason" formnovalidate="formnovalidate" class="form-control" />
+        <span asp-validation-for="Reason" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Запази</button>
+    <a asp-action="Index" asp-controller="WorkTime" asp-route-id="@Model.EmpUserId" class="btn btn-secondary">Затвори</a>
+</form>
+

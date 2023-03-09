@@ -1,0 +1,80 @@
+﻿@model IEnumerable<EmployeeUser>
+@{
+    ViewData["Title"] = "Основен екран - Админ";
+}
+
+<br />
+<div class="container row p-0 m-0">
+    <div class="col-1">
+        <h6 class="text">Служител: </h6>
+    </div>
+    <div class="col-6">
+        <form method="post">
+            <select class="form-select" atia-label="Default select example">
+                <option selected>Изберете служител</option>
+                @foreach (EmployeeUser user in Model)
+                {
+                    <option value="@user.Id">
+                        @user.FirstName @user.LastName, @user.Email
+                        @*<button asp-page-handler="Delete" asp-route-id="@user.Id" type="submit" class="btn btn-sm btn-danger">
+                    Изтрий
+                    </button>*@
+                    </option>
+
+                }
+            </select>
+
+
+        </form>
+    </div>
+    <div type="button" class="btn btn-outline-danger col-1">Изтрий</div>
+    <div class="col-3">
+        <a asp-action="Create" asp-controller="Home" type="button" class="btn btn-outline-primary">Нов служител</a>
+    </div>
+</div>
+<br />
+
+<div class="col-12 border p-3 m-3">
+    @if (Model.Count() > 0)
+    {
+        <table class="table table-striper table-bordered">
+            <tr>
+                <th style="width: 10%"></th>
+                <th style="width: 12%">Начало/Край</th>
+                <th style="width: 18%">Име</th>
+                <th style="width: 18%">Фамилия</th>
+                <th style ="width: 18%">Потребителско име</th>
+                <th style="width: 14%">Присъствие</th>
+                <th class="table table-borderless" style="width: 10%"></th>
+            </tr>
+            @foreach (EmployeeUser user in Model)
+            {
+                <tr>
+                    <td class="@(user.IsWorking ? "table-success" : "table-danger")"></td>
+                    <td>
+                        @if (!user.IsWorking)
+                        {
+                            <a asp-controller="Admin" asp-action="StartWorking" asp-route-id="@user.Id">Начало</a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Admin" asp-action="EndWorking" asp-route-id="@user.Id" asp-route-id="@ViewBag.workTimeId">Край</a>
+                        }
+                        
+                    </td>
+                    <td>@user.FirstName</td>
+                    <td>@user.LastName</td>
+                    <td>@user.UserName</td>
+                    <td>@(user.IsWorking ? "На работа е" : "Не е на работа")</td>
+                    <td>
+                        <a asp-action="Index" asp-controller="WorkTime" asp-route-id="@user.Id" type="button" class="btn btn-link">Детайли</a>
+                    </td>
+                </tr>
+            }
+        </table>
+    }
+    else
+    {
+        <p>There are no registered employees.</p>
+    }
+</div>
